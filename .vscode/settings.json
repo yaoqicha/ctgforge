@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.ttml": "xml",
+    "*.ttss": "css"
+  },
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "terminal.integrated.env.osx": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}
