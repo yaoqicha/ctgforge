@@ -42,12 +42,9 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "pydantic>=2.12.5",
-]
-
-[project.optional-dependencies]
-pandas = [
+    "httpx>=0.28.1",
     "pandas>=2.3.3",
+    "pydantic>=2.12.5",
 ]
 
 [build-system]
