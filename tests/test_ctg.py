@@ -5,6 +5,9 @@ from ctgforge.flatten import flatten_core
 
 def test_ctg():
     client = CTG()
+    
+    trial = client.get("NCT04633122")
+    assert trial is not None
 
     q = (
         F.condition.contains("lung cancer")

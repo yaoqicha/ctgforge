@@ -69,7 +69,7 @@ class CTGHttpxClient:
 
     def get(self, nct_id: str) -> dict[str, Any]:
         """Fetch a single study by NCT ID."""
-        path = self.STUDY_PATH.format(nctId=nct_id)
+        path = self.STUDY_PATH.format(nct_id=nct_id)
         return self._request_json("GET", path)
 
     def search(
