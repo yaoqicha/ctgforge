@@ -3,9 +3,9 @@ from ctgforge.export import to_dataframe, to_property_graph
 from ctgforge.flatten import flatten_core
 
 
-def test_ctg():
-    client = CTG()
-    
+def _run_ctg(client=None):
+    client = client or CTG()
+
     trial = client.get("NCT04633122")
     assert trial is not None
 
@@ -38,3 +38,12 @@ def test_ctg():
     print(f"Nodes: {len(nodes)}, Edges: {len(edges)}")
     print(nodes[:5])
     print(edges[:5])
+
+
+def test_httpx_client():
+    _run_ctg()
+    
+
+def test_requests_client():
+    from ctgforge.client.requests_client import CTGRequestsClient
+    _run_ctg(client=CTG(client=CTGRequestsClient()))

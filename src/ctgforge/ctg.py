@@ -1,13 +1,14 @@
 from collections.abc import Iterator
 from typing import Any, Optional
 
+from .client.ctg_client import CTGClient
 from .client.httpx_client import CTGHttpxClient
 from .query.compiler import compile_to_params
 from .query.expr import Expr
 
 
 class CTG:
-    def __init__(self, client: Optional[CTGHttpxClient] = None) -> None:
+    def __init__(self, client: Optional[CTGClient] = None) -> None:
         self.client = client or CTGHttpxClient()
 
     def close(self) -> None:

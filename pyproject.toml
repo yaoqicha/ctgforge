@@ -1,6 +1,6 @@
 [project]
 name = "ctgforge"
-version = "0.1.1"
+version = "0.1.2"
 description = "Turn ClinicalTrials.gov v2 studies into analytics-ready DataFrames and knowledge graphs."
 readme = "README.md"
 authors = [
@@ -45,6 +45,11 @@ dependencies = [
     "httpx>=0.28.1",
     "pandas>=2.3.3",
     "pydantic>=2.12.5",
+]
+
+[project.optional-dependencies]
+requests = [
+    "requests>=2.32.5",
 ]
 
 [build-system]

@@ -1,13 +1,13 @@
 from typing import Any, Optional
 
-import httpx
+import requests
 
 from ctgforge.client.ctg_client import CTGClient, CTGTransportError, RetryConfig
 
 
-class CTGHttpxClient(CTGClient):
+class CTGRequestsClient(CTGClient):
     """
-    Httpx-based thin HTTP transport for ClinicalTrials.gov v2.
+    Requests-based thin HTTP transport for ClinicalTrials.gov v2.
     """
 
     def __init__(
@@ -16,7 +16,7 @@ class CTGHttpxClient(CTGClient):
         timeout: float = 30.0,
         headers: Optional[dict[str, str]] = None,
         retry: Optional[RetryConfig] = None,
-        client: Optional[httpx.Client] = None,
+        client: Optional[requests.Session] = None,
     ) -> None:
         super().__init__(
             headers=headers,
@@ -24,12 +24,10 @@ class CTGHttpxClient(CTGClient):
             client=client,
         )
 
-        self._client = client or httpx.Client(
-            base_url=self.BASE_URL,
-            timeout=httpx.Timeout(timeout),
-            headers=self._headers,
-            follow_redirects=True,
-        )
+        self._client = client or requests.Session()
+        if not client:
+            self._client.headers.update(self._headers)
+            self._timeout = timeout
 
     # ------ Implementation of abstract methods ------
 
@@ -47,18 +45,18 @@ class CTGHttpxClient(CTGClient):
     ) -> dict[str, Any]:
         last_exc: Optional[Exception] = None
 
-        # Convert dict-type params to httpx's QueryParams to keep "+" unescaped
+        # Convert dict-type params to requests's QueryParams to keep "+" unescaped
         str_params = []
         if params is not None:
             for k, v in params.items():
                 str_params.append(f"{k}={v}")
-        qp = httpx.QueryParams("&".join(str_params))
+        qp = "&".join(str_params)
 
         for attempt in range(self._retry.max_retries + 1):
             try:
                 resp = self._client.request(
                     method,
-                    path,
+                    self.BASE_URL + path,
                     params=qp,
                     json=json,
                 )
@@ -72,11 +70,11 @@ class CTGHttpxClient(CTGClient):
                     raise CTGTransportError(f"Expected JSON object, got: {type(data)}")
                 return data
 
-            except (httpx.TimeoutException, httpx.NetworkError) as e:
+            except (requests.Timeout, requests.ConnectionError) as e:
                 last_exc = e
                 self._sleep_backoff(attempt, None)
                 continue
-            except httpx.HTTPStatusError as e:
+            except requests.HTTPError as e:
                 # Non-retryable HTTP error
                 raise CTGTransportError(
                     f"HTTP error: {e.response.status_code} calling {path}: {e.response.text[:300]}"

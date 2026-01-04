@@ -33,7 +33,7 @@ def test_compile_simple_contains():
 def test_compile_simple_filter_list():
     expr = F.status.in_(["RECRUITING", "COMPLETED"])
     params = compile_to_params(expr)
-    assert params.params == {"filter.overallStatus": "RECRUITING,COMPLETED"}
+    assert params.params == {"filter.overallStatus": "COMPLETED,RECRUITING"}
 
 
 def test_compile_and_or():
@@ -50,7 +50,7 @@ def test_compile_and_or():
         "query.spons": '"Acme+Pharma"',
         "query.intr": '"drug+A"',
         "query.titles": "(Study)",
-        "filter.overallStatus": "RECRUITING,COMPLETED",
+        "filter.overallStatus": "COMPLETED,RECRUITING",
     }
 
     expr = F.condition.eq("diabetes") | F.condition.eq("hypertension")

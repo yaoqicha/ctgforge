@@ -173,7 +173,9 @@ def _compile_filter_list(expr: Expr) -> list[str]:
         raise QueryCompilerError("Doesn't support OR/NOT for this search area for now.")
 
     walk(expr)
-    return list(items)
+    lst = list(items)
+    lst.sort()
+    return lst
 
 
 def _compile_filter_advanced(expr: Expr) -> str:
