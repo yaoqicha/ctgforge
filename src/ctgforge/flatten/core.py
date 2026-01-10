@@ -1,5 +1,10 @@
-from ..models.core import *
-from ..models.provenance import ProvenancedValue
+from ..models.core import (
+    Agency,
+    Condition,
+    DateStruct,
+    Intervention,
+    TrialCore,
+)
 
 
 def flatten_core(raw: dict) -> TrialCore:
@@ -12,7 +17,7 @@ def flatten_core(raw: dict) -> TrialCore:
     conds = p.get("conditionsModule", {})
     arms = p.get("armsInterventionsModule", {})
     sponsor = p.get("sponsorCollaboratorsModule", {})
-    
+
     cond_browse = d.get("conditionBrowseModule", {})
     intr_browse = d.get("interventionBrowseModule", {})
 
@@ -49,7 +54,10 @@ def flatten_core(raw: dict) -> TrialCore:
         conditions=[
             Condition(
                 name=c,
-                mesh_uid=next(iter([mesh for mesh in cond_browse.get("meshes", []) if mesh.get("term") == c]), {}).get("id"),
+                mesh_uid=next(
+                    iter([mesh for mesh in cond_browse.get("meshes", []) if mesh.get("term") == c]),
+                    {},
+                ).get("id"),
             )
             for c in conds.get("conditions", [])
         ],
@@ -60,21 +68,28 @@ def flatten_core(raw: dict) -> TrialCore:
                 description=intr.get("description"),
                 other_names=intr.get("otherNames", []),
                 arm_group_types=[
-                    next(iter([ag for ag in arms.get("armGroups", []) if ag.get("label") == ag_label]), {}).get("type", "OTHER")
+                    next(
+                        iter(
+                            [ag for ag in arms.get("armGroups", []) if ag.get("label") == ag_label]
+                        ),
+                        {},
+                    ).get("type", "OTHER")
                     for ag_label in intr.get("armGroupLabels", [])
                 ],
-                mesh_uid=next(iter([mesh for mesh in intr_browse.get("meshes", []) if mesh.get("term") == intr.get("name")]), {}).get("id"),
+                mesh_uid=next(
+                    iter(
+                        [
+                            mesh
+                            for mesh in intr_browse.get("meshes", [])
+                            if mesh.get("term") == intr.get("name")
+                        ]
+                    ),
+                    {},
+                ).get("id"),
             )
             for intr in arms.get("interventions", [])
         ],
-    )
-
-    # Provenance information
-    # TODO: add more fields as needed
-    trial.prov["overall_status"] = ProvenancedValue(
-        value=trial.overall_status,
-        source_module="statusModule",
-        source_path="protocolSection.statusModule.overallStatus",
+        has_results=raw.get("hasResults", False),
     )
 
     return trial

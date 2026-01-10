@@ -1,38 +1,27 @@
 # For protocol definitions, please refer to: https://clinicaltrials.gov/policy/protocol-definitions
 
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
-
-from .provenance import ProvenancedValue
 
 
 class Agency(BaseModel):
     name: str
     type: Literal[
-        "NIH",
-        "FED",
-        "OTHER_GOV",
-        "INDIV",
-        "INDUSTRY",
-        "NETWORK",
-        "AMBIG",
-        "OTHER",
-        "UNKNOWN"
-    ] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-AgencyClass
-    
+        "NIH", "FED", "OTHER_GOV", "INDIV", "INDUSTRY", "NETWORK", "AMBIG", "OTHER", "UNKNOWN"
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-AgencyClass
+
 
 class Condition(BaseModel):
     name: str
     mesh_uid: Optional[str]
-    
-    
+
+
 class DateStruct(BaseModel):
     date: str
     type: Literal[
-        "ACTUAL",
-        "ESTIMATED"
-    ] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-DateType
+        "ACTUAL", "ESTIMATED"
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-DateType
 
 
 class Intervention(BaseModel):
@@ -49,31 +38,33 @@ class Intervention(BaseModel):
         "GENETIC",
         "PROCEDURE",
         "RADIATION",
-        "OTHER"
-    ] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-InterventionType
-    arm_group_types: Optional[list[Literal[
-        "EXPERIMENTAL",
-        "ACTIVE_COMPARATOR",
-        "PLACEBO_COMPARATOR",
-        "SHAM_COMPARATOR",
-        "NO_INTERVENTION",
-        "OTHER"
-    ]]] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-ArmGroupType
+        "OTHER",
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-InterventionType
+    arm_group_types: Optional[
+        list[
+            Literal[
+                "EXPERIMENTAL",
+                "ACTIVE_COMPARATOR",
+                "PLACEBO_COMPARATOR",
+                "SHAM_COMPARATOR",
+                "NO_INTERVENTION",
+                "OTHER",
+            ]
+        ]
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-ArmGroupType
     other_names: list[str] = Field(default_factory=list)
     description: Optional[str]
-    
+
 
 class TrialCore(BaseModel):
     nct_id: str
 
     brief_title: str
     official_title: str
-    
+
     study_type: Literal[
-        "EXPANDED_ACCESS",
-        "INTERVENTIONAL",
-        "OBSERVATIONAL"
-    ] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-StudyType
+        "EXPANDED_ACCESS", "INTERVENTIONAL", "OBSERVATIONAL"
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-StudyType
 
     overall_status: Literal[
         "ACTIVE_NOT_RECRUITING",
@@ -89,21 +80,16 @@ class TrialCore(BaseModel):
         "TEMPORARILY_NOT_AVAILABLE",
         "APPROVED_FOR_MARKETING",
         "WITHHELD",
-        "UNKNOWN"
-    ] # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-Status
-    
-    phases: list[Literal[
-        "NA",
-        "EARLY_PHASE1",
-        "PHASE1",
-        "PHASE2",
-        "PHASE3",
-        "PHASE4"
-    ]] = Field(default_factory=list) # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-Phase
-    
+        "UNKNOWN",
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-Status
+
+    phases: list[Literal["NA", "EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4"]] = Field(
+        default_factory=list
+    )  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-Phase
+
     lead_sponsor: Agency
     collaborators: list[Agency] = Field(default_factory=list)
-    
+
     conditions: list[Condition] = Field(default_factory=list)
     interventions: list[Intervention] = Field(default_factory=list)
 
@@ -111,4 +97,4 @@ class TrialCore(BaseModel):
     primary_completion_date: DateStruct
     completion_date: DateStruct
 
-    prov: dict[str, ProvenancedValue] = Field(default_factory=dict)
+    has_results: bool = False

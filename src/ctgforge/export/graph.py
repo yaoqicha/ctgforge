@@ -20,21 +20,21 @@ def to_property_graph(trials: Sequence[TrialCore]) -> tuple[pd.DataFrame, pd.Dat
         node(tid, "Trial", **t.model_dump(exclude={"prov"}))
 
         for c in t.conditions:
-            cid = f"Condition:{c.lower()}"
-            node(cid, "Condition", name=c)
+            cid = f"Condition:{c.name.lower()}"
+            node(cid, "Condition", name=c.name, mesh_uid=c.mesh_uid if c.mesh_uid else None)
             edge(tid, "HAS_CONDITION", cid)
 
         for i in t.interventions:
-            name = i.get("name")
+            name = i.name
             if not name:
                 continue
             iid = f"Intervention:{name.lower()}"
-            node(iid, "Intervention", **i)
+            node(iid, "Intervention", **i.model_dump())
             edge(tid, "HAS_INTERVENTION", iid)
 
-        if t.sponsor:
-            sid = f"Sponsor:{t.sponsor.lower()}"
-            node(sid, "Sponsor", name=t.sponsor)
+        if t.lead_sponsor:
+            sid = f"Sponsor:{t.lead_sponsor.name.lower()}"
+            node(sid, "Sponsor", name=t.lead_sponsor.name, type=t.lead_sponsor.type)
             edge(tid, "SPONSORED_BY", sid)
 
     nodes_df = pd.DataFrame(nodes).drop_duplicates("node_id")

@@ -42,8 +42,9 @@ def _run_ctg(client=None):
 
 def test_httpx_client():
     _run_ctg()
-    
+
 
 def test_requests_client():
     from ctgforge.client.requests_client import CTGRequestsClient
+
     _run_ctg(client=CTG(client=CTGRequestsClient()))

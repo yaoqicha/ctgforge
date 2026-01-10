@@ -28,7 +28,7 @@ class CTGClient(ABC):
       - get(nct_id) returning a raw study dict
       - built-in pagination
       - retry/backoff on transient failures / rate limits
-      
+
     Subclasses must implement _request_json() and close().
     """
 
