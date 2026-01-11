@@ -16,7 +16,7 @@ class CTG:
 
     def get(self, nct_id: str) -> dict[str, Any]:
         return self.client.get(nct_id)
-        
+
     def count(
         self,
         query: Optional[Expr] = None,
@@ -40,10 +40,12 @@ class CTG:
         *,
         fields: Optional[list[str]] = None,
         offset: int = 0,
-        max_records: int = 20,  # Allowed max is 100
+        limit: int = 100,  # Allowed max records returned, up to 1000,
         sort: str = "LastUpdatePostDate",
         **params: Any,
     ) -> Iterator[dict[str, Any]]:
+        limit = min(limit, 1000)  # Enforce max limit of 1000
+
         compiled = compile_to_params(query).params if query is not None else {}
 
         # user-supplied params override compiled params
@@ -53,7 +55,7 @@ class CTG:
             None,  # backend should accept raw params; keep query arg for compatibility
             fields=fields,
             offset=offset,
-            max_records=max_records,
+            limit=limit,
             sort=sort,
             **merged,
         )

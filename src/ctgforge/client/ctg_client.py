@@ -80,7 +80,7 @@ class CTGClient(ABC):
         """Fetch a single study by NCT ID."""
         path = self.STUDY_PATH.format(nct_id=nct_id)
         return self._request_json("GET", path)
-    
+
     def count(
         self,
         query: Optional[str] = None,
@@ -107,14 +107,13 @@ class CTGClient(ABC):
         # The total count is included in the response's metadata
         return payload.get("totalCount", 0)
 
-
     def search(
         self,
         query: Optional[str] = None,
         *,
         fields: Optional[list[str]] = None,
         offset: int = 0,
-        max_records: int = 1000,
+        limit: int = 100,
         sort: str = "LastUpdatePostDate",
         **extra_params: Any,
     ) -> Iterator[dict[str, Any]]:
@@ -125,12 +124,12 @@ class CTGClient(ABC):
             query: compiled query string
             fields: list of fields to return
             offset: number of records to skip
-            max_records: maximum number of records to return, up to 1000
+            limit: maximum number of records to return, up to 1000
             sort: sort order
             extra_params: additional query parameters
         """
-        max_records = min(max_records, 1000)
-        
+        limit = min(limit, 1000)
+
         params: dict[str, Any] = dict(extra_params)
         if query:
             # CTG v2 commonly uses "query.term" for free text/expression.
@@ -160,7 +159,7 @@ class CTGClient(ABC):
                     continue
                 yield s
                 yielded += 1
-                if max_records is not None and yielded >= max_records:
+                if limit is not None and yielded >= limit:
                     return
 
             next_token = payload.get("nextPageToken")

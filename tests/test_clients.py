@@ -13,21 +13,24 @@ def _run_ctg(client=None):
         & F.status.in_(["RECRUITING", "COMPLETED"])
         & F.phase.in_(["PHASE3", "PHASE4"])
     )
-    
+
     total = client.count(q)
     assert total > 40
     print(f"Total matching studies: {total}")
 
-    raw = list(client.search(q, max_records=40))
-    
-    raw_offset = list(client.search(q, offset=20, max_records=20))
+    raw = list(client.search(q, limit=40))
+
+    raw_offset = list(client.search(q, offset=20, limit=20))
 
     client.close()
 
     assert len(raw) == 40
     assert len(raw_offset) == 20
-    
-    assert (raw[0]["protocolSection"]["identificationModule"]["nctId"] != raw[20]["protocolSection"]["identificationModule"]["nctId"])
+
+    assert (
+        raw[0]["protocolSection"]["identificationModule"]["nctId"]
+        != raw[20]["protocolSection"]["identificationModule"]["nctId"]
+    )
     print("Sample NCT IDs:")
     for study in raw[:3]:
         print(study["protocolSection"]["identificationModule"]["nctId"])
@@ -37,9 +40,13 @@ def _run_ctg(client=None):
     print("...")
     for study in raw[-3:]:
         print(study["protocolSection"]["identificationModule"]["nctId"])
-        
+
     for i in range(20):
-        assert raw[i + 20]["protocolSection"]["identificationModule"]["nctId"] == raw_offset[i]["protocolSection"]["identificationModule"]["nctId"]
+        assert (
+            raw[i + 20]["protocolSection"]["identificationModule"]["nctId"]
+            == raw_offset[i]["protocolSection"]["identificationModule"]["nctId"]
+        )
+
 
 def test_httpx_client():
     _run_ctg()
