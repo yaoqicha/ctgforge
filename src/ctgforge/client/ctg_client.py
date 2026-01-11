@@ -86,8 +86,9 @@ class CTGClient(ABC):
         query: Optional[str] = None,
         *,
         fields: Optional[list[str]] = None,
-        page_size: int = 100,
-        max_studies: Optional[int] = None,
+        page_size: int = 20,
+        max_studies: int = 20,
+        sort: str = "LastUpdatePostDate",
         **extra_params: Any,
     ) -> Iterator[dict[str, Any]]:
         """
@@ -108,6 +109,7 @@ class CTGClient(ABC):
             params["fields"] = ",".join(fields)
 
         params["pageSize"] = int(page_size)
+        params["sort"] = sort
 
         yielded = 0
         next_token: Optional[str] = None

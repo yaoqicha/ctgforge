@@ -40,7 +40,9 @@ def to_property_graph(trials: Sequence[TrialCore]) -> tuple[pd.DataFrame, pd.Dat
                 "Intervention",
                 mesh_uid=i.mesh_uid if i.mesh_uid else None,
                 type=i.type,
-                arm_group_types=i.arm_group_types,
+                arm_group_types=set(
+                    [ag.type for ag in t.arm_groups if ag.label in i.arm_group_labels]
+                ),
             )
             edge(tid, "HAS_INTERVENTION", iid)
 

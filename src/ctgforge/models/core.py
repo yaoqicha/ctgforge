@@ -12,6 +12,22 @@ class Agency(BaseModel):
     ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-AgencyClass
 
 
+class ArmGroup(BaseModel):
+    label: str
+    type: Optional[
+        Literal[
+            "EXPERIMENTAL",
+            "ACTIVE_COMPARATOR",
+            "PLACEBO_COMPARATOR",
+            "SHAM_COMPARATOR",
+            "NO_INTERVENTION",
+            "OTHER",
+        ]
+    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-ArmGroupType
+    description: Optional[str]
+    intervention_names: list[str] = Field(default_factory=list)
+
+
 class Condition(BaseModel):
     name: str
     mesh_uid: Optional[str]
@@ -19,8 +35,8 @@ class Condition(BaseModel):
 
 class DateStruct(BaseModel):
     date: str
-    type: Literal[
-        "ACTUAL", "ESTIMATED"
+    type: Optional[
+        Literal["ACTUAL", "ESTIMATED"]
     ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-DateType
 
 
@@ -40,18 +56,7 @@ class Intervention(BaseModel):
         "RADIATION",
         "OTHER",
     ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-InterventionType
-    arm_group_types: Optional[
-        list[
-            Literal[
-                "EXPERIMENTAL",
-                "ACTIVE_COMPARATOR",
-                "PLACEBO_COMPARATOR",
-                "SHAM_COMPARATOR",
-                "NO_INTERVENTION",
-                "OTHER",
-            ]
-        ]
-    ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-ArmGroupType
+    arm_group_labels: list[str] = Field(default_factory=list)
     other_names: list[str] = Field(default_factory=list)
     description: Optional[str]
 
@@ -91,10 +96,11 @@ class TrialCore(BaseModel):
     collaborators: list[Agency] = Field(default_factory=list)
 
     conditions: list[Condition] = Field(default_factory=list)
+    arm_groups: list[ArmGroup] = Field(default_factory=list)
     interventions: list[Intervention] = Field(default_factory=list)
 
-    start_date: DateStruct
-    primary_completion_date: DateStruct
-    completion_date: DateStruct
+    start_date: Optional[DateStruct]
+    primary_completion_date: Optional[DateStruct]
+    completion_date: Optional[DateStruct]
 
     has_results: bool = False

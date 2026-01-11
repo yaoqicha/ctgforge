@@ -35,11 +35,5 @@ class Fields:
     # but CTG supports advanced filter query strings (AREA[...]) via filter.advanced.
     phase = Field(FieldSpec("phase", kind="filter_advanced", param="filter.advanced", area="Phase"))
 
-    drug = Field(
-        FieldSpec(
-            "drug", kind="filter_advanced", param="filter.advanced", area="InterventionNameSearch"
-        )
-    )
-
 
 F = Fields()

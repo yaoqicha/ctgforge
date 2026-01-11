@@ -22,8 +22,9 @@ class CTG:
         query: Optional[Expr] = None,
         *,
         fields: Optional[list[str]] = None,
-        page_size: int = 100,
-        max_studies: Optional[int] = None,
+        page_size: int = 10,
+        max_studies: int = 10,
+        sort: str = "LastUpdatePostDate",
         **params: Any,
     ) -> Iterator[dict[str, Any]]:
         compiled = compile_to_params(query).params if query is not None else {}
@@ -36,5 +37,6 @@ class CTG:
             fields=fields,
             page_size=page_size,
             max_studies=max_studies,
+            sort=sort,
             **merged,
         )

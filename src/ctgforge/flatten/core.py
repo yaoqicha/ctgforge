@@ -1,5 +1,6 @@
 from ..models.core import (
     Agency,
+    ArmGroup,
     Condition,
     DateStruct,
     Intervention,
@@ -29,17 +30,23 @@ def flatten_core(raw: dict) -> TrialCore:
         overall_status=status.get("overallStatus"),
         phases=design.get("phases", []),
         start_date=DateStruct(
-            date=status.get("startDateStruct", {}).get("date"),
-            type=status.get("startDateStruct", {}).get("type"),
-        ),
+            date=status.get("startDateStruct").get("date"),
+            type=status.get("startDateStruct").get("type"),
+        )
+        if status.get("startDateStruct")
+        else None,
         completion_date=DateStruct(
-            date=status.get("completionDateStruct", {}).get("date"),
-            type=status.get("completionDateStruct", {}).get("type"),
-        ),
+            date=status.get("completionDateStruct").get("date"),
+            type=status.get("completionDateStruct").get("type"),
+        )
+        if status.get("completionDateStruct")
+        else None,
         primary_completion_date=DateStruct(
-            date=status.get("primaryCompletionDateStruct", {}).get("date"),
-            type=status.get("primaryCompletionDateStruct", {}).get("type"),
-        ),
+            date=status.get("primaryCompletionDateStruct").get("date"),
+            type=status.get("primaryCompletionDateStruct").get("type"),
+        )
+        if status.get("primaryCompletionDateStruct")
+        else None,
         lead_sponsor=Agency(
             name=sponsor.get("leadSponsor", {}).get("name"),
             type=sponsor.get("leadSponsor", {}).get("class"),
@@ -55,11 +62,26 @@ def flatten_core(raw: dict) -> TrialCore:
             Condition(
                 name=c,
                 mesh_uid=next(
-                    iter([mesh for mesh in cond_browse.get("meshes", []) if mesh.get("term") == c]),
+                    iter(
+                        [
+                            mesh
+                            for mesh in cond_browse.get("meshes", [])
+                            if mesh.get("term").lower() == c.lower()
+                        ]
+                    ),
                     {},
                 ).get("id"),
             )
             for c in conds.get("conditions", [])
+        ],
+        arm_groups=[
+            ArmGroup(
+                label=ag.get("label"),
+                type=ag.get("type"),
+                description=ag.get("description"),
+                intervention_names=ag.get("interventionNames", []),
+            )
+            for ag in arms.get("armGroups", [])
         ],
         interventions=[
             Intervention(
@@ -67,21 +89,13 @@ def flatten_core(raw: dict) -> TrialCore:
                 type=intr.get("type"),
                 description=intr.get("description"),
                 other_names=intr.get("otherNames", []),
-                arm_group_types=[
-                    next(
-                        iter(
-                            [ag for ag in arms.get("armGroups", []) if ag.get("label") == ag_label]
-                        ),
-                        {},
-                    ).get("type", "OTHER")
-                    for ag_label in intr.get("armGroupLabels", [])
-                ],
+                arm_group_labels=intr.get("armGroupLabels", []),
                 mesh_uid=next(
                     iter(
                         [
                             mesh
                             for mesh in intr_browse.get("meshes", [])
-                            if mesh.get("term") == intr.get("name")
+                            if mesh.get("term").lower() == intr.get("name").lower()
                         ]
                     ),
                     {},

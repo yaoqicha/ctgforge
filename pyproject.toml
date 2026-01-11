@@ -1,6 +1,6 @@
 [project]
 name = "ctgforge"
-version = "0.1.2"
+version = "0.2.0"
 description = "Turn ClinicalTrials.gov v2 studies into analytics-ready DataFrames and knowledge graphs."
 readme = "README.md"
 authors = [

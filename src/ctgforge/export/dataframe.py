@@ -17,8 +17,9 @@ def to_dataframe(trials: Sequence[TrialCore]) -> pd.DataFrame:
         )
 
         # Flatten interventions and conditions into semicolon-separated strings
-        row["interventions"] = "; ".join(i.name for i in t.interventions)
         row["conditions"] = "; ".join(c.name for c in t.conditions)
+        row["arm_groups"] = "; ".join(ag.label for ag in t.arm_groups)
+        row["interventions"] = "; ".join(i.name for i in t.interventions)
 
         # Flatten date structs to just date strings
         row["start_date"] = t.start_date.date if t.start_date else None
