@@ -18,6 +18,7 @@ def flatten_core(raw: dict) -> TrialCore:
     conds = p.get("conditionsModule", {})
     arms = p.get("armsInterventionsModule", {})
     sponsor = p.get("sponsorCollaboratorsModule", {})
+    desc = p.get("descriptionModule", {})
 
     cond_browse = d.get("conditionBrowseModule", {})
     intr_browse = d.get("interventionBrowseModule", {})
@@ -26,6 +27,8 @@ def flatten_core(raw: dict) -> TrialCore:
         nct_id=ident.get("nctId"),
         brief_title=ident.get("briefTitle"),
         official_title=ident.get("officialTitle"),
+        brief_summary=desc.get("briefSummary"),
+        detailed_description=desc.get("detailedDescription"),
         study_type=design.get("studyType"),
         overall_status=status.get("overallStatus"),
         phases=design.get("phases", []),

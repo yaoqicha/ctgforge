@@ -67,6 +67,9 @@ class TrialCore(BaseModel):
     brief_title: str
     official_title: str
 
+    brief_summary: str
+    detailed_description: Optional[str]
+
     study_type: Literal[
         "EXPANDED_ACCESS", "INTERVENTIONAL", "OBSERVATIONAL"
     ]  # https://clinicaltrials.gov/data-api/about-api/study-data-structure#enum-StudyType
