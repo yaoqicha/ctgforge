@@ -80,14 +80,41 @@ class CTGClient(ABC):
         """Fetch a single study by NCT ID."""
         path = self.STUDY_PATH.format(nct_id=nct_id)
         return self._request_json("GET", path)
+    
+    def count(
+        self,
+        query: Optional[str] = None,
+        **extra_params: Any,
+    ) -> int:
+        """
+        Count studies matching the query.
+
+        Args:
+            query: compiled query string
+            extra_params: additional query parameters
+        """
+        params: dict[str, Any] = dict(extra_params)
+        if query:
+            # CTG v2 commonly uses "query.term" for free text/expression.
+            params["query.term"] = query
+
+        # Use a page size of 1 to minimize data transfer
+        params["pageSize"] = 1
+        params["countTotal"] = "true"
+
+        payload = self._request_json("GET", self.SEARCH_PATH, params=params)
+
+        # The total count is included in the response's metadata
+        return payload.get("totalCount", 0)
+
 
     def search(
         self,
         query: Optional[str] = None,
         *,
         fields: Optional[list[str]] = None,
-        page_size: int = 20,
-        max_studies: int = 20,
+        offset: int = 0,
+        max_records: int = 1000,
         sort: str = "LastUpdatePostDate",
         **extra_params: Any,
     ) -> Iterator[dict[str, Any]]:
@@ -97,10 +124,13 @@ class CTGClient(ABC):
         Args:
             query: compiled query string
             fields: list of fields to return
-            page_size: number of studies per page
-            max_studies: maximum number of studies to return
+            offset: number of records to skip
+            max_records: maximum number of records to return, up to 1000
+            sort: sort order
             extra_params: additional query parameters
         """
+        max_records = min(max_records, 1000)
+        
         params: dict[str, Any] = dict(extra_params)
         if query:
             # CTG v2 commonly uses "query.term" for free text/expression.
@@ -108,10 +138,11 @@ class CTGClient(ABC):
         if fields:
             params["fields"] = ",".join(fields)
 
-        params["pageSize"] = int(page_size)
+        params["pageSize"] = 100
         params["sort"] = sort
 
         yielded = 0
+        skipped = 0
         next_token: Optional[str] = None
 
         while True:
@@ -124,9 +155,12 @@ class CTGClient(ABC):
                 "StudyFields", []
             )
             for s in studies:
+                if skipped < offset:
+                    skipped += 1
+                    continue
                 yield s
                 yielded += 1
-                if max_studies is not None and yielded >= max_studies:
+                if max_records is not None and yielded >= max_records:
                     return
 
             next_token = payload.get("nextPageToken")

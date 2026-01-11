@@ -16,14 +16,31 @@ class CTG:
 
     def get(self, nct_id: str) -> dict[str, Any]:
         return self.client.get(nct_id)
+        
+    def count(
+        self,
+        query: Optional[Expr] = None,
+        **params: Any,
+    ) -> int:
+        compiled = compile_to_params(query).params if query is not None else {}
+
+        # user-supplied params override compiled params
+        merged = {**compiled, **params}
+
+        # Use a page size of 1 to minimize data transfer
+        total = self.client.count(
+            None,  # backend should accept raw params; keep query arg for compatibility
+            **merged,
+        )
+        return total
 
     def search(
         self,
         query: Optional[Expr] = None,
         *,
         fields: Optional[list[str]] = None,
-        page_size: int = 10,
-        max_studies: int = 10,
+        offset: int = 0,
+        max_records: int = 20,  # Allowed max is 100
         sort: str = "LastUpdatePostDate",
         **params: Any,
     ) -> Iterator[dict[str, Any]]:
@@ -35,8 +52,8 @@ class CTG:
         return self.client.search(
             None,  # backend should accept raw params; keep query arg for compatibility
             fields=fields,
-            page_size=page_size,
-            max_studies=max_studies,
+            offset=offset,
+            max_records=max_records,
             sort=sort,
             **merged,
         )

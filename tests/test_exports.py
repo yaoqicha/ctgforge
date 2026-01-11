@@ -6,7 +6,7 @@ from ctgforge.flatten import flatten_core
 def test_exports():
     client = CTG()
 
-    raw = list(client.search(None, page_size=10, max_studies=10))
+    raw = list(client.search(None, max_records=10))
 
     client.close()
 
