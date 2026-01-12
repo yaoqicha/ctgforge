@@ -125,7 +125,7 @@ class CTGClient(ABC):
         limit = min(limit, 1000)
 
         params: dict[str, Any] = dict(query or {})
-        
+
         if fields:
             params["fields"] = ",".join(fields)
 

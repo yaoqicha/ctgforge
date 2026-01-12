@@ -34,7 +34,8 @@ def test_compile_simple_filter_list():
     expr = F.status.in_(["RECRUITING", "COMPLETED"])
     params = compile_to_params(expr)
     assert params.params == {"filter.overallStatus": "COMPLETED,RECRUITING"}
-    
+
+
 def test_compile_simple_filter_advanced():
     expr = F.phase.in_(["PHASE2", "PHASE3"])
     params = compile_to_params(expr)
