@@ -83,20 +83,15 @@ class CTGClient(ABC):
 
     def count(
         self,
-        query: Optional[str] = None,
-        **extra_params: Any,
+        query: Optional[dict[str, Any]] = None,
     ) -> int:
         """
         Count studies matching the query.
 
         Args:
-            query: compiled query string
-            extra_params: additional query parameters
+            query: compiled query object as a dict of query parameters
         """
-        params: dict[str, Any] = dict(extra_params)
-        if query:
-            # CTG v2 commonly uses "query.term" for free text/expression.
-            params["query.term"] = query
+        params: dict[str, Any] = dict(query or {})
 
         # Use a page size of 1 to minimize data transfer
         params["pageSize"] = 1
@@ -109,13 +104,12 @@ class CTGClient(ABC):
 
     def search(
         self,
-        query: Optional[str] = None,
+        query: Optional[dict[str, Any]] = None,
         *,
         fields: Optional[list[str]] = None,
         offset: int = 0,
         limit: int = 100,
         sort: str = "LastUpdatePostDate",
-        **extra_params: Any,
     ) -> Iterator[dict[str, Any]]:
         """
         Search studies with pagination.
@@ -130,10 +124,8 @@ class CTGClient(ABC):
         """
         limit = min(limit, 1000)
 
-        params: dict[str, Any] = dict(extra_params)
-        if query:
-            # CTG v2 commonly uses "query.term" for free text/expression.
-            params["query.term"] = query
+        params: dict[str, Any] = dict(query or {})
+        
         if fields:
             params["fields"] = ",".join(fields)
 

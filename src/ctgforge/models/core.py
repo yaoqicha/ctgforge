@@ -105,5 +105,6 @@ class TrialCore(BaseModel):
     start_date: Optional[DateStruct]
     primary_completion_date: Optional[DateStruct]
     completion_date: Optional[DateStruct]
+    last_update_post_date: Optional[DateStruct]
 
     has_results: bool = False

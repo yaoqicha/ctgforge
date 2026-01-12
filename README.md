@@ -44,12 +44,14 @@ from ctgforge.export import to_dataframe, to_property_graph
 client = CTG()
 
 q = (
-  F.condition.contains("lung cancer") &
-  F.phase.in_(["PHASE3", "PHASE4"]) &
-  F.status.eq("COMPLETED")
+    F.sponsor.eq("pfizer") &
+    F.condition.contains("lung cancer") &
+    F.phase.in_(["PHASE3", "PHASE4"]) &
+    F.status.in_(["RECRUITING", "COMPLETED"])
 )
 
-raw = client.search(q)
+count = client.count(q)
+raw = client.search(q, offset=20, limit=100)
 trials = [flatten_core(r) for r in raw]
 
 df = to_dataframe(trials)
@@ -61,6 +63,19 @@ At this point you have:
 - a wide trial table for analytics
 - node/edge tables ready for graph import
 - a stable, inspectable data model
+
+### How to query
+
+- **Single Query**: `F.{field}.{operator}({value})`
+- **Available Fields**: `sponsor`, `condition`, `intervention`, `phase`, `status`, `title`
+- **Available Operators**: `eq`, `contains`, `in_`
+
+Logical operators `&` `|` `!` can be used to combine multiple queries. However, the `|` (OR) operator across different fields such as `F.condition.eq("diabetes") | F.sponsor.eq("Acme Pharma")` will raise an error.
+
+You may add extra criteria to `count` or `search`, such as  
+`client.count(q, extra={"query.term": "AREA[LastUpdatePostDate]RANGE[2025-01-01,MAX]"})`
+
+For the format of raw criteria, please refer to [ClinicalTrials.gov API Specification](https://clinicaltrials.gov/data-api/api).
 
 ## Who this is for
 

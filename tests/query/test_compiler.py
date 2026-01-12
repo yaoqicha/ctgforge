@@ -34,6 +34,12 @@ def test_compile_simple_filter_list():
     expr = F.status.in_(["RECRUITING", "COMPLETED"])
     params = compile_to_params(expr)
     assert params.params == {"filter.overallStatus": "COMPLETED,RECRUITING"}
+    
+def test_compile_simple_filter_advanced():
+    expr = F.phase.in_(["PHASE2", "PHASE3"])
+    params = compile_to_params(expr)
+    print(params.params)
+    assert params.params == {"filter.advanced": "AREA[Phase](PHASE2+OR+PHASE3)"}
 
 
 def test_compile_and_or():
@@ -45,6 +51,7 @@ def test_compile_and_or():
         & F.status.in_(["RECRUITING", "COMPLETED"])
     )
     params = compile_to_params(expr)
+    print(params.params)
     assert params.params == {
         "query.cond": '"diabetes"',
         "query.spons": '"Acme+Pharma"',

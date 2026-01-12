@@ -50,6 +50,12 @@ def flatten_core(raw: dict) -> TrialCore:
         )
         if status.get("primaryCompletionDateStruct")
         else None,
+        last_update_post_date=DateStruct(
+            date=status.get("lastUpdatePostDateStruct").get("date"),
+            type=status.get("lastUpdatePostDateStruct").get("type"),
+        )
+        if status.get("lastUpdatePostDateStruct")
+        else None,
         lead_sponsor=Agency(
             name=sponsor.get("leadSponsor", {}).get("name"),
             type=sponsor.get("leadSponsor", {}).get("class"),

@@ -6,6 +6,20 @@ def _run_ctg(client=None):
 
     trial = client.get("NCT04633122")
     assert trial is not None
+    
+    total = client.count(None, extra={"query.term": "AREA[LastUpdatePostDate]RANGE[2025-01-01,MAX]"})
+    assert total > 0
+    print(f"Total studies updated since 2025-01-01: {total}")
+
+    q = (
+        F.sponsor.eq("pfizer")
+        & F.condition.contains("lung cancer")
+        & F.phase.in_(["PHASE3", "PHASE4"])
+        & F.status.in_(["RECRUITING", "COMPLETED"])
+    )
+    total = client.count(q)
+    assert total >= 0
+    print(f"Total matching studies: {total}")
 
     q = (
         F.condition.contains("lung cancer")
