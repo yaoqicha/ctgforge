@@ -25,9 +25,9 @@ def test_compile_simple_in():
 
 
 def test_compile_simple_contains():
-    expr = F.title.contains("Cancer")
+    expr = F.title.contains("Lung Cancer")
     params = compile_to_params(expr)
-    assert params.params == {"query.titles": "(Cancer)"}
+    assert params.params == {"query.titles": "(Lung+Cancer)"}
 
 
 def test_compile_simple_filter_list():
@@ -52,7 +52,6 @@ def test_compile_and_or():
         & F.status.in_(["RECRUITING", "COMPLETED"])
     )
     params = compile_to_params(expr)
-    print(params.params)
     assert params.params == {
         "query.cond": '"diabetes"',
         "query.spons": '"Acme+Pharma"',

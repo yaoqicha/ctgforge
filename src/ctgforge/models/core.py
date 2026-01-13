@@ -65,7 +65,7 @@ class TrialCore(BaseModel):
     nct_id: str
 
     brief_title: str
-    official_title: str
+    official_title: Optional[str]
 
     brief_summary: str
     detailed_description: Optional[str]
